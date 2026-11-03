@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import field_validator
+from pydantic import field_validator, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     app_name: str = "TaskFlow API"
     environment: str = "development"
     log_level: LogLevel = "INFO"
+    database_url: SecretStr
 
     @field_validator("log_level", mode="before")
     @classmethod
