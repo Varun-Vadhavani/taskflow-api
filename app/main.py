@@ -1,15 +1,20 @@
 import logging
 import time
 
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
+from sqlalchemy import text
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import Session
 
 from app.config import get_settings
+from app.db import get_db
 from app.logging_config import setup_logging
 
 settings = get_settings()
 setup_logging(settings.log_level)
 
 logger = logging.getLogger("taskflow.access")
+health_logger = logging.getLogger("taskflow.health")
 
 app = FastAPI(
     title=settings.app_name,
@@ -40,5 +45,16 @@ async def log_requests(request: Request, call_next):
 
 @app.get("/health", tags=["Health"])
 def health() -> dict[str, str]:
-    """Report that the service is running."""
+    """Report that the service process is running."""
     return {"status": "ok"}
+
+
+@app.get("/health/db", tags=["Health"])
+def health_db(db: Session = Depends(get_db)) -> dict[str, str]:
+    """Report whether the database is reachable."""
+    try:
+        db.execute(text("SELECT 1"))
+    except SQLAlchemyError:
+        health_logger.exception("Database health check failed")
+        raise HTTPException(status_code=503, detail="Database unavailable")
+    return {"status": "ok", "database": "ok"}
