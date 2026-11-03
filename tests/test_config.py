@@ -38,3 +38,20 @@ def test_invalid_log_level_fails_fast(monkeypatch):
 
     with pytest.raises(ValidationError):
         Settings(_env_file=None)
+
+def test_database_url_is_required(monkeypatch):
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None)
+
+
+def test_database_url_is_hidden_when_printed(monkeypatch):
+    monkeypatch.setenv(
+        "DATABASE_URL", "postgresql+psycopg://user:supersecret@localhost:5433/db"
+    )
+
+    settings = Settings(_env_file=None)
+
+    assert "supersecret" not in repr(settings)
+    assert "supersecret" not in str(settings)
