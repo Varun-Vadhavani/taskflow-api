@@ -1,8 +1,7 @@
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import field_validator
-from pydantic import field_validator, SecretStr
+from pydantic import SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 LogLevel = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]

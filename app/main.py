@@ -1,9 +1,6 @@
 import logging
 import time
 
-from fastapi import FastAPI, Request
-
-from app.config import get_settings
 from fastapi import Depends, FastAPI, HTTPException, Request
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
