@@ -26,4 +26,3 @@ def db_session():
         session.close()
         transaction.rollback()
         connection.close()
-)
