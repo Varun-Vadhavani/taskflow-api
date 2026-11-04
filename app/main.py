@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from app.config import get_settings
 from app.db import get_db
 from app.logging_config import setup_logging
+from app.routers import tasks
 
 settings = get_settings()
 setup_logging(settings.log_level)
@@ -22,6 +23,7 @@ app = FastAPI(
     version="0.1.0",
 )
 
+app.include_router(tasks.router)
 
 @app.middleware("http")
 async def log_requests(request: Request, call_next):
