@@ -7,10 +7,12 @@ os.environ.setdefault(
 )
 
 import pytest  # noqa: E402
+from fastapi.testclient import TestClient  # noqa: E402
 from sqlalchemy.orm import Session  # noqa: E402
 
 from app import models  # noqa: E402, F401  (registers the Task table on Base)
-from app.db import Base, engine  # noqa: E402
+from app.db import Base, engine, get_db  # noqa: E402
+from app.main import app  # noqa: E402
 
 
 @pytest.fixture
@@ -26,3 +28,16 @@ def db_session():
         session.close()
         transaction.rollback()
         connection.close()
+
+
+@pytest.fixture
+def client(db_session):
+    """A test client whose database changes are rolled back after each test."""
+
+    def override_get_db():
+        yield db_session
+
+    app.dependency_overrides[get_db] = override_get_db
+    with TestClient(app) as test_client:
+        yield test_client
+    app.dependency_overrides.clear()
